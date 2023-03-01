@@ -1,0 +1,5 @@
+kortex_control
+/home/anthony/comp400/sim/kinova-arm/catkin_ws/devel/.private/kortex_control/cmake.lock /home/anthony/comp400/sim/kinova-arm/catkin_ws/devel/./cmake.lock
+/home/anthony/comp400/sim/kinova-arm/catkin_ws/devel/.private/kortex_control/lib/pkgconfig/kortex_control.pc /home/anthony/comp400/sim/kinova-arm/catkin_ws/devel/lib/pkgconfig/kortex_control.pc
+/home/anthony/comp400/sim/kinova-arm/catkin_ws/devel/.private/kortex_control/share/kortex_control/cmake/kortex_controlConfig-version.cmake /home/anthony/comp400/sim/kinova-arm/catkin_ws/devel/share/kortex_control/cmake/kortex_controlConfig-version.cmake
+/home/anthony/comp400/sim/kinova-arm/catkin_ws/devel/.private/kortex_control/share/kortex_control/cmake/kortex_controlConfig.cmake /home/anthony/comp400/sim/kinova-arm/catkin_ws/devel/share/kortex_control/cmake/kortex_controlConfig.cmake

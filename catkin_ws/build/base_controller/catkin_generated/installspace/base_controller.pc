@@ -1,0 +1,8 @@
+prefix=/home/anthony/comp400/sim/kinova-arm/catkin_ws/install
+
+Name: base_controller
+Description: Description of base_controller
+Version: 0.1.0
+Cflags: -I${prefix}/include
+Libs: -L${prefix}/lib 
+Requires: roscpp sensor_msgs geometry_msgs rospy urdf

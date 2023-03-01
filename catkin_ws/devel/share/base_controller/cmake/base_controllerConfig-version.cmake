@@ -1,0 +1,1 @@
+/home/anthony/comp400/sim/kinova-arm/catkin_ws/devel/.private/base_controller/share/base_controller/cmake/base_controllerConfig-version.cmake

@@ -1,0 +1,1 @@
+/home/anthony/comp400/sim/kinova-arm/catkin_ws/devel/.private/kortex_control/share/kortex_control/cmake/kortex_controlConfig-version.cmake
