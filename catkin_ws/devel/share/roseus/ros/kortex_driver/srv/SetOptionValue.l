@@ -1,1 +1,0 @@
-/home/anthony/comp400/sim/kinova-arm/catkin_ws/devel/.private/kortex_driver/share/roseus/ros/kortex_driver/srv/SetOptionValue.l

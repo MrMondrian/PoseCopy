@@ -1,5 +1,0 @@
-kortex_gazebo
-/home/anthony/comp400/sim/kinova-arm/catkin_ws/devel/.private/kortex_gazebo/cmake.lock /home/anthony/comp400/sim/kinova-arm/catkin_ws/devel/./cmake.lock
-/home/anthony/comp400/sim/kinova-arm/catkin_ws/devel/.private/kortex_gazebo/lib/pkgconfig/kortex_gazebo.pc /home/anthony/comp400/sim/kinova-arm/catkin_ws/devel/lib/pkgconfig/kortex_gazebo.pc
-/home/anthony/comp400/sim/kinova-arm/catkin_ws/devel/.private/kortex_gazebo/share/kortex_gazebo/cmake/kortex_gazeboConfig.cmake /home/anthony/comp400/sim/kinova-arm/catkin_ws/devel/share/kortex_gazebo/cmake/kortex_gazeboConfig.cmake
-/home/anthony/comp400/sim/kinova-arm/catkin_ws/devel/.private/kortex_gazebo/share/kortex_gazebo/cmake/kortex_gazeboConfig-version.cmake /home/anthony/comp400/sim/kinova-arm/catkin_ws/devel/share/kortex_gazebo/cmake/kortex_gazeboConfig-version.cmake

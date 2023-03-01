@@ -1,1 +1,0 @@
-/home/anthony/comp400/sim/kinova-arm/catkin_ws/devel/.private/kortex_driver/share/gennodejs/ros/kortex_driver/msg/Waypoint_type_of_waypoint.js

@@ -6,6 +6,7 @@ import rosparam
 import argparse
 
 from std_msgs.msg import Float64MultiArray, MultiArrayLayout, MultiArrayDimension
+#from posegrab import *
 #from kortex_driver.srv import *
 #from kortex_driver.msg import *
 
@@ -84,36 +85,36 @@ class PoseCapture:
 
     def elbow_angle(self, results):
         landmarks = results.pose_world_landmarks
-        lm_dict = landmarks_to_dict(landmarks)
-        wrist = dict_to_list(lm_dict[PoseLandmark.RIGHT_WRIST])
-        elbow = dict_to_list(lm_dict[PoseLandmark.RIGHT_ELBOW])
-        shoulder = dict_to_list(lm_dict[PoseLandmark.RIGHT_SHOULDER])
+        lm_dict = self.landmarks_to_dict(landmarks)
+        wrist = self.dict_to_list(lm_dict[PoseLandmark.RIGHT_WRIST])
+        elbow = self.dict_to_list(lm_dict[PoseLandmark.RIGHT_ELBOW])
+        shoulder = self.dict_to_list(lm_dict[PoseLandmark.RIGHT_SHOULDER])
 
         v1 = [shoulder[i] - elbow[i] for i in range(3)]
         v2 = [wrist[i] - elbow[i] for i in range(3)]
-        return angle(v1,v2,30)
+        return self.angle(v1,v2,30)
 
     def shoulder_angle(self, results):
         landmarks = results.pose_world_landmarks
-        lm_dict = landmarks_to_dict(landmarks)
-        hip = dict_to_list(lm_dict[PoseLandmark.RIGHT_HIP])
-        elbow = dict_to_list(lm_dict[PoseLandmark.RIGHT_ELBOW])
-        shoulder = dict_to_list(lm_dict[PoseLandmark.RIGHT_SHOULDER])
+        lm_dict = self.landmarks_to_dict(landmarks)
+        hip = self.dict_to_list(lm_dict[PoseLandmark.RIGHT_HIP])
+        elbow = self.dict_to_list(lm_dict[PoseLandmark.RIGHT_ELBOW])
+        shoulder = self.dict_to_list(lm_dict[PoseLandmark.RIGHT_SHOULDER])
 
         v1 = [elbow[i] - shoulder[i] for i in range(3)]
         v2 = [hip[i] - shoulder[i] for i in range(3)]
-        return angle(v1,v2,15)
+        return self.angle(v1,v2,15)
 
     def shoulder_rotation(self, results):
         landmarks = results.pose_world_landmarks
-        lm_dict = landmarks_to_dict(landmarks)
-        elbow = dict_to_list(lm_dict[PoseLandmark.RIGHT_ELBOW])
-        shoulder = dict_to_list(lm_dict[PoseLandmark.RIGHT_SHOULDER])
+        lm_dict = self.landmarks_to_dict(landmarks)
+        elbow = self.dict_to_list(lm_dict[PoseLandmark.RIGHT_ELBOW])
+        shoulder = self.dict_to_list(lm_dict[PoseLandmark.RIGHT_SHOULDER])
 
         v1 = [elbow[0] - shoulder[0], elbow[2] - shoulder[2]]
         v2 = [1,0]
 
-        return angle(v1,v2,7)
+        return self.angle(v1,v2,7)
 
 
 
@@ -123,7 +124,8 @@ class PoseCapture:
         min_tracking_confidence=0.5,
         model_complexity=2) as pose:
             while self.cap.isOpened():
-                success, image = cap.read()
+                success, image = self.cap.read()
+                print(success)
                 if not success:
                     print("Ignoring empty camera frame.")
                     # If loading a video, use 'break' instead of 'continue'.
@@ -132,7 +134,7 @@ class PoseCapture:
                 image.flags.writeable = False
                 image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
                 results = pose.process(image)
-                yield [shoulder_rotation(results),shoulder_angle(results),elbow_angle(results),0,0,0]
+                yield [self.shoulder_rotation(results),self.shoulder_angle(results),abs(3.14 - self.elbow_angle(results)),0,0,0]
             self.cap.release()
             #print(elbow_angle(results))
             #print(shoulder_angle(results))
@@ -150,7 +152,7 @@ class PoseCapture:
             #     results.pose_landmarks,
             #     mp_pose.POSE_CONNECTIONS,
             #     landmark_drawing_spec=mp_drawing_styles.get_default_pose_landmarks_style())
-            # Flip the image horizontally for a selfie-view display.
+            # #Flip the image horizontally for a selfie-view display.
             # cv2.imshow('MediaPipe Pose', cv2.flip(image, 1))
             # if cv2.waitKey(5) & 0xFF == 27:
             #   break
@@ -162,7 +164,8 @@ class PoseCapture:
 class BaseController:
     def __init__(self, activate: bool = False):
 
-        self.grab = PoseCapture(video="example.mp4").angles()
+        posecap = PoseCapture(video="/home/anthony/comp400/sim/kinova-arm/catkin_ws/src/base_controller/scripts/example.mp4")
+        self.grab = posecap.angles()
 
         # read config files
         self.is_activated = activate
@@ -214,9 +217,15 @@ class BaseController:
             self.is_init_success = True
 
     def loop(self):
-        #angles = next(self.grab)
+        angles = next(self.grab,None)
+        # if angles == None:
+        #     self.activated = False
+        #     return
         pub = [1.5]*6
-        #pub[2] = angles[2]
+        if angles != None:
+            pub[2] = angles[2]
+        print("angles {}".format(angles))
+        #pub[2] = 0
         # print(angles)
         self.publish_joints(pub)
 
@@ -295,14 +304,21 @@ def main():
     bc_module = BaseController(True)
 
     rate = rospy.Rate(200)
-
+    
+    start = rospy.get_time()
     # main control loop
-    while not rospy.is_shutdown():
-        if not bc_module.is_activated:
-            rospy.loginfo('Base controller is not activated.')
-            rate.sleep()
-            continue
-        bc_module.loop()
+    while not rospy.is_shutdown() and bc_module.is_activated:
+        # if not bc_module.is_activated:
+        #     rospy.loginfo('Base controller is not activated.')
+        #     rate.sleep()
+        #     continue
+        if rospy.get_time() - start < 333.0:
+            #print("hi {}".format(rospy.get_time() - start))
+            bc_module.publish_joints([1.5]*6)
+        else:
+            #print("bye {}".format(rospy.get_time() - start))
+            #bc_module.publish_joints([0]*6)
+            bc_module.loop()
         rate.sleep()
     rospy.signal_shutdown("Controller served its purpose.")
 

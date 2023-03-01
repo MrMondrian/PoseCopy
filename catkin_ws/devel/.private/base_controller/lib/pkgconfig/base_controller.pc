@@ -1,8 +1,0 @@
-prefix=/home/anthony/comp400/sim/kinova-arm/catkin_ws/devel/.private/base_controller
-
-Name: base_controller
-Description: Description of base_controller
-Version: 0.1.0
-Cflags: -I/home/anthony/comp400/sim/kinova-arm/catkin_ws/src/base_controller/include
-Libs: -L${prefix}/lib 
-Requires: roscpp sensor_msgs geometry_msgs rospy urdf

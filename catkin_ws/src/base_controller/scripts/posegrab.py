@@ -32,14 +32,13 @@ mp_drawing_styles = mp.solutions.drawing_styles
 class PoseCapture:
 
 
-  def __init__(video=None):
+  def __init__(self,video=None):
     self.DESIRED_HEIGHT = 480
     self.DESIRED_WIDTH = 480
     if video == None:
       self.cap = cv2.VideoCapture(0)
     else:
-      self.cap = c2.VideoCapture(video)
-    self.images_path = imdir
+      self.cap = cv2.VideoCapture(video)
 
 
 
@@ -74,66 +73,47 @@ class PoseCapture:
 
   def elbow_angle(self, results):
     landmarks = results.pose_world_landmarks
-    lm_dict = landmarks_to_dict(landmarks)
-    wrist = dict_to_list(lm_dict[PoseLandmark.RIGHT_WRIST])
-    elbow = dict_to_list(lm_dict[PoseLandmark.RIGHT_ELBOW])
-    shoulder = dict_to_list(lm_dict[PoseLandmark.RIGHT_SHOULDER])
+    lm_dict = self.landmarks_to_dict(landmarks)
+    wrist = self.dict_to_list(lm_dict[PoseLandmark.RIGHT_WRIST])
+    elbow = self.dict_to_list(lm_dict[PoseLandmark.RIGHT_ELBOW])
+    shoulder = self.dict_to_list(lm_dict[PoseLandmark.RIGHT_SHOULDER])
 
     v1 = [shoulder[i] - elbow[i] for i in range(3)]
     v2 = [wrist[i] - elbow[i] for i in range(3)]
-    return angle(v1,v2,30)
+    return self.angle(v1,v2,30)
 
   def shoulder_angle(self, results):
     landmarks = results.pose_world_landmarks
-    lm_dict = landmarks_to_dict(landmarks)
-    hip = dict_to_list(lm_dict[PoseLandmark.RIGHT_HIP])
-    elbow = dict_to_list(lm_dict[PoseLandmark.RIGHT_ELBOW])
-    shoulder = dict_to_list(lm_dict[PoseLandmark.RIGHT_SHOULDER])
+    lm_dict = self.landmarks_to_dict(landmarks)
+    hip = self.dict_to_list(lm_dict[PoseLandmark.RIGHT_HIP])
+    elbow = self.dict_to_list(lm_dict[PoseLandmark.RIGHT_ELBOW])
+    shoulder = self.dict_to_list(lm_dict[PoseLandmark.RIGHT_SHOULDER])
 
     v1 = [elbow[i] - shoulder[i] for i in range(3)]
     v2 = [hip[i] - shoulder[i] for i in range(3)]
-    return angle(v1,v2,15)
+    return self.angle(v1,v2,15)
 
   def shoulder_rotation(self, results):
     landmarks = results.pose_world_landmarks
-    lm_dict = landmarks_to_dict(landmarks)
-    elbow = dict_to_list(lm_dict[PoseLandmark.RIGHT_ELBOW])
-    shoulder = dict_to_list(lm_dict[PoseLandmark.RIGHT_SHOULDER])
+    lm_dict = self.landmarks_to_dict(landmarks)
+    elbow = self.dict_to_list(lm_dict[PoseLandmark.RIGHT_ELBOW])
+    shoulder = self.dict_to_list(lm_dict[PoseLandmark.RIGHT_SHOULDER])
 
     v1 = [elbow[0] - shoulder[0], elbow[2] - shoulder[2]]
     v2 = [1,0]
 
-    return angle(v1,v2,7)
+    return self.angle(v1,v2,7)
 
 
 
 
-
-
-# Read images with OpenCV.
-#images = {"index": cv2.imread("index.jpeg")}
-# Preview the images.
-# for name, image in images.items():
-#   print(name)   
-#   resize_and_show(image)
-
-"""All MediaPipe Solutions Python API examples are under mp.solutions.
-
-For the MediaPipe Pose solution, we can access this module as `mp_pose = mp.solutions.pose`.
-
-You may change the parameters, such as `static_image_mode` and `min_detection_confidence`, during the initialization. Run `help(mp_pose.Pose)` to get more informations about the parameters.
-"""
-
-
-
-
-  def angles():
+  def angles(self):
     with mp_pose.Pose(
         min_detection_confidence=0.5,
         min_tracking_confidence=0.5,
         model_complexity=2) as pose:
       while self.cap.isOpened():
-        success, image = cap.read()
+        success, image = self.cap.read()
         if not success:
           print("Ignoring empty camera frame.")
           # If loading a video, use 'break' instead of 'continue'.
@@ -142,7 +122,7 @@ You may change the parameters, such as `static_image_mode` and `min_detection_co
         image.flags.writeable = False
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         results = pose.process(image)
-        yield [shoulder_rotation(results),shoulder_angle(results),elbow_angle(results),0,0,0]
+        yield [self.shoulder_rotation(results),self.shoulder_angle(results),self.elbow_angle(results),0,0,0]
         #print(elbow_angle(results))
         #print(shoulder_angle(results))
         # if(results.pose_world_landmarks and results.pose_world_landmarks.landmark):
@@ -153,19 +133,24 @@ You may change the parameters, such as `static_image_mode` and `min_detection_co
         # Draw the pose annotation on the image.
         # image.flags.writeable = True
         #print(elbow_angle(results))
-        # image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-        # mp_drawing.draw_landmarks(
-        #     image,
-        #     results.pose_landmarks,
-        #     mp_pose.POSE_CONNECTIONS,
-        #     landmark_drawing_spec=mp_drawing_styles.get_default_pose_landmarks_style())
-        # Flip the image horizontally for a selfie-view display.
-        # cv2.imshow('MediaPipe Pose', cv2.flip(image, 1))
-        # if cv2.waitKey(5) & 0xFF == 27:
-        #   break
+        image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+        mp_drawing.draw_landmarks(
+            image,
+            results.pose_landmarks,
+            mp_pose.POSE_CONNECTIONS,
+            landmark_drawing_spec=mp_drawing_styles.get_default_pose_landmarks_style())
+        #Flip the image horizontally for a selfie-view display.
+        cv2.imshow('MediaPipe Pose', cv2.flip(image, 1))
+        if cv2.waitKey(5) & 0xFF == 27:
+          break
         # mp_drawing.plot_landmarks(
         #     results.pose_world_landmarks, mp_pose.POSE_CONNECTIONS)
     self.cap.release()
+
+if __name__ == '__main__':
+  thing = PoseCapture("example.mp4")
+  for angles in thing.angles():
+    print(angles)
 
 
 '''
