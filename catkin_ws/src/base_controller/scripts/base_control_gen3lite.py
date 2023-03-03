@@ -134,7 +134,7 @@ class PoseCapture:
                 image.flags.writeable = False
                 image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
                 results = pose.process(image)
-                yield [self.shoulder_rotation(results),self.shoulder_angle(results),abs(3.14 - self.elbow_angle(results)),0,0,0]
+                yield [self.shoulder_rotation(results),abs(3.14 -self.shoulder_angle(results)),abs(3.14 - self.elbow_angle(results)),0,0,0]
             self.cap.release()
             #print(elbow_angle(results))
             #print(shoulder_angle(results))
@@ -158,6 +158,15 @@ class PoseCapture:
             #   break
             # mp_drawing.plot_landmarks(
             #     results.pose_world_landmarks, mp_pose.POSE_CONNECTIONS)
+    def angle_from_image(self,path):
+        with mp_pose.Pose(
+        min_detection_confidence=0.5,
+        min_tracking_confidence=0.5,
+        model_complexity=2) as pose:
+            image = cv2.imread(path, cv2.IMREAD_COLOR)
+            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+            results = pose.process(image)
+            return [self.shoulder_rotation(results),abs(3.14 -self.shoulder_angle(results)),abs(3.14 - self.elbow_angle(results)),0,0,0]
         
 
 
@@ -166,7 +175,8 @@ class BaseController:
 
         posecap = PoseCapture(video="/home/anthony/comp400/sim/kinova-arm/catkin_ws/src/base_controller/scripts/example.mp4")
         self.grab = posecap.angles()
-
+        self.image_angles = posecap.angle_from_image('/home/anthony/comp400/sim/kinova-arm/catkin_ws/src/base_controller/scripts/example2.jpg')
+        
         # read config files
         self.is_activated = activate
         #self.__config_file_address = f'../config/basic_config.yaml'
@@ -215,8 +225,7 @@ class BaseController:
             self.is_init_success = False
         else:
             self.is_init_success = True
-
-    def loop(self):
+    def loop_video(self):
         angles = next(self.grab,None)
         # if angles == None:
         #     self.activated = False
@@ -227,6 +236,16 @@ class BaseController:
         print("angles {}".format(angles))
         #pub[2] = 0
         # print(angles)
+        self.publish_joints(pub)
+
+    def loop_image(self):
+        pub = [0]*6
+        pub[0] = self.image_angles[0]
+        pub[1] = self.image_angles[1]
+        pub[2] = self.image_angles[2]
+
+        self.image_angles[0] = 4.2
+        #print(pub)
         self.publish_joints(pub)
 
 
@@ -314,11 +333,13 @@ def main():
         #     continue
         if rospy.get_time() - start < 333.0:
             #print("hi {}".format(rospy.get_time() - start))
-            bc_module.publish_joints([1.5]*6)
+            bc_module.loop_image()
+            #bc_module.publish_joints([1.5]*6)
         else:
             #print("bye {}".format(rospy.get_time() - start))
             #bc_module.publish_joints([0]*6)
-            bc_module.loop()
+            #bc_module.loop_video()
+            bc_module.loop_image()
         rate.sleep()
     rospy.signal_shutdown("Controller served its purpose.")
 
