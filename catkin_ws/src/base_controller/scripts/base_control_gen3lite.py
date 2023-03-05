@@ -175,7 +175,7 @@ class BaseController:
 
         posecap = PoseCapture(video="/home/anthony/comp400/sim/kinova-arm/catkin_ws/src/base_controller/scripts/example.mp4")
         self.grab = posecap.angles()
-        self.image_angles = posecap.angle_from_image('/home/anthony/comp400/sim/kinova-arm/catkin_ws/src/base_controller/scripts/example2.jpg')
+        self.image_angles = posecap.angle_from_image('/home/anthony/comp400/sim/kinova-arm/catkin_ws/src/base_controller/scripts/example3.jpg')
         
         # read config files
         self.is_activated = activate
@@ -244,8 +244,8 @@ class BaseController:
         pub[1] = self.image_angles[1]
         pub[2] = self.image_angles[2]
 
-        self.image_angles[0] = 4.2
-        #print(pub)
+        print(pub)
+        
         self.publish_joints(pub)
 
 
@@ -326,7 +326,12 @@ def main():
     
     start = rospy.get_time()
     # main control loop
+    i = 0
     while not rospy.is_shutdown() and bc_module.is_activated:
+        # i+=1
+        # if(i % 300 == 0):
+        #     bc_module.image_angles[1] += 0.5
+        #     bc_module.image_angles[1] = bc_module.image_angles[1] % 4
         # if not bc_module.is_activated:
         #     rospy.loginfo('Base controller is not activated.')
         #     rate.sleep()
