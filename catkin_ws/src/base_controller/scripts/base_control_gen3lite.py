@@ -127,9 +127,9 @@ class PoseCapture:
         model_complexity=2) as pose:
             while self.cap.isOpened():
                 success, image = self.cap.read()
-                print(success)
+                #print(success)
                 if not success:
-                    print("Ignoring empty camera frame.")
+                    #print("Ignoring empty camera frame.")
                     # If loading a video, use 'break' instead of 'continue'.
                     continue
 
@@ -170,17 +170,20 @@ class PoseCapture:
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
             results = pose.process(image)
             return [self.shoulder_rotation(results),abs(3.14 -self.shoulder_angle(results)),abs(3.14 - self.elbow_angle(results)),0,0,0]
+    def move_frame(self,num):
+        for i in range(num):
+            _,_ = self.cap.read()
         
 
 
 class BaseController:
     def __init__(self, activate: bool = False):
 
-        posecap = PoseCapture(video='/home/anthony/comp400/sim/kinova-arm/catkin_ws/src/base_controller/scripts/test.mp4')
-        self.grab = posecap.angles()
+        self.posecap = PoseCapture(video='/home/anthony/comp400/sim/kinova-arm/catkin_ws/src/base_controller/scripts/test.mp4')
+        self.grab = self.posecap.angles()
         #_ = next(self.grab)
-        self.image_angles = posecap.angle_from_image('/home/anthony/comp400/sim/kinova-arm/catkin_ws/src/base_controller/scripts/example.jpg')
-        self.video_angles = [0]*6
+        self.image_angles = self.posecap.angle_from_image('/home/anthony/comp400/sim/kinova-arm/catkin_ws/src/base_controller/scripts/example.jpg')
+        self.video_angles = [1.5]*6
         self.prev = self.video_angles
         
         # read config files
@@ -250,7 +253,7 @@ class BaseController:
         pub[1] = self.image_angles[1]
         pub[2] = self.image_angles[2]
 
-        print(pub)
+        #print(pub)
         
         self.publish_joints(pub)
 
@@ -264,8 +267,9 @@ class BaseController:
         
         self.publish_joints(pub)
     
-    def move_frame(self):
-        _ = next(self.grab,self.prev)
+    def move_frame(self,num):
+        for i in range(num):
+            _ = self.posecap.move_frame(num)
     def next_frame(self):
         self.prev = self.video_angles
         self.video_angles = next(self.grab,self.prev)
@@ -356,11 +360,17 @@ def main():
     i = 0
     while not rospy.is_shutdown() and bc_module.is_activated:
         i+=1
-        if(i % 15 == 0):
-            bc_module.move_frame()
-        if(i % 50 == 0):
-            bc_module.next_frame()
+        # if(i% 1 == 0):
+        #     bc_module.move_frame(4)
+        #     bc_module.next_frame()
+        bc_module.move_frame(1)
+        bc_module.next_frame()
         bc_module.loop()
+        
+        # if(i % 16 == 0):
+        #     bc_module.next_frame()
+        # if(i % 50 == 0):
+        #     bc_module.next_frame()
         # if not bc_module.is_activated:
         #     rospy.loginfo('Base controller is not activated.')
         #     rate.sleep()
