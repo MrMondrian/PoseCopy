@@ -92,7 +92,8 @@ class PoseCapture:
 
         v1 = [shoulder[i] - elbow[i] for i in range(3)]
         v2 = [wrist[i] - elbow[i] for i in range(3)]
-        return self.angle(v1,v2,30)
+        return self.angle(v1,v2,3)
+        #return self.angle(v1,v2,30)
 
     def shoulder_angle(self, results):
         landmarks = results.pose_world_landmarks
@@ -103,7 +104,8 @@ class PoseCapture:
 
         v1 = [elbow[i] - shoulder[i] for i in range(3)]
         v2 = [hip[i] - shoulder[i] for i in range(3)]
-        return self.angle(v1,v2,15)
+        return self.angle(v1,v2,2)
+        #return self.angle(v1,v2,15)
 
     def shoulder_rotation(self, results):
         landmarks = results.pose_world_landmarks
@@ -113,8 +115,8 @@ class PoseCapture:
 
         v1 = [elbow[0] - shoulder[0], elbow[2] - shoulder[2]]
         v2 = [1,0]
-
-        return self.angle(v1,v2,7)
+        return self.angle(v1,v2,1)
+        #return self.angle(v1,v2,7)
 
 
 
@@ -160,6 +162,7 @@ class PoseCapture:
             #     results.pose_world_landmarks, mp_pose.POSE_CONNECTIONS)
     def angle_from_image(self,path):
         with mp_pose.Pose(
+        static_image_mode=True,
         min_detection_confidence=0.5,
         min_tracking_confidence=0.5,
         model_complexity=2) as pose:
@@ -173,9 +176,12 @@ class PoseCapture:
 class BaseController:
     def __init__(self, activate: bool = False):
 
-        posecap = PoseCapture(video="/home/anthony/comp400/sim/kinova-arm/catkin_ws/src/base_controller/scripts/example.mp4")
+        posecap = PoseCapture(video='/home/anthony/comp400/sim/kinova-arm/catkin_ws/src/base_controller/scripts/test.mp4')
         self.grab = posecap.angles()
-        self.image_angles = posecap.angle_from_image('/home/anthony/comp400/sim/kinova-arm/catkin_ws/src/base_controller/scripts/example3.jpg')
+        #_ = next(self.grab)
+        self.image_angles = posecap.angle_from_image('/home/anthony/comp400/sim/kinova-arm/catkin_ws/src/base_controller/scripts/example.jpg')
+        self.video_angles = [0]*6
+        self.prev = self.video_angles
         
         # read config files
         self.is_activated = activate
@@ -247,6 +253,22 @@ class BaseController:
         print(pub)
         
         self.publish_joints(pub)
+
+    def loop(self):
+        pub = [0]*6
+        pub[0] = self.video_angles[0]
+        pub[1] = self.video_angles[1]
+        pub[2] = self.video_angles[2]
+
+        print(pub)
+        
+        self.publish_joints(pub)
+    
+    def move_frame(self):
+        _ = next(self.grab,self.prev)
+    def next_frame(self):
+        self.prev = self.video_angles
+        self.video_angles = next(self.grab,self.prev)
 
 
     def publish_joints(self,angles):
@@ -324,27 +346,30 @@ def main():
 
     rate = rospy.Rate(200)
     
-    start = rospy.get_time()
     # main control loop
     i = 0
+
+    while i < 1000:
+        i+=1
+        bc_module.publish_joints([1.5]*6)
+        rate.sleep()
+    i = 0
     while not rospy.is_shutdown() and bc_module.is_activated:
-        # i+=1
-        # if(i % 300 == 0):
-        #     bc_module.image_angles[1] += 0.5
-        #     bc_module.image_angles[1] = bc_module.image_angles[1] % 4
+        i+=1
+        if(i % 15 == 0):
+            bc_module.move_frame()
+        if(i % 50 == 0):
+            bc_module.next_frame()
+        bc_module.loop()
         # if not bc_module.is_activated:
         #     rospy.loginfo('Base controller is not activated.')
         #     rate.sleep()
         #     continue
-        if rospy.get_time() - start < 333.0:
-            #print("hi {}".format(rospy.get_time() - start))
-            bc_module.loop_image()
-            #bc_module.publish_joints([1.5]*6)
-        else:
+
             #print("bye {}".format(rospy.get_time() - start))
             #bc_module.publish_joints([0]*6)
             #bc_module.loop_video()
-            bc_module.loop_image()
+            
         rate.sleep()
     rospy.signal_shutdown("Controller served its purpose.")
 

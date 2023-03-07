@@ -109,6 +109,7 @@ class PoseCapture:
 
   def angles(self):
     with mp_pose.Pose(
+      static_image_mode=True,
         min_detection_confidence=0.5,
         min_tracking_confidence=0.5,
         model_complexity=2) as pose:
@@ -139,7 +140,6 @@ class PoseCapture:
             results.pose_landmarks,
             mp_pose.POSE_CONNECTIONS,
             landmark_drawing_spec=mp_drawing_styles.get_default_pose_landmarks_style())
-        #Flip the image horizontally for a selfie-view display.
         cv2.imshow('MediaPipe Pose', cv2.flip(image, 1))
         if cv2.waitKey(5) & 0xFF == 27:
           break
@@ -147,10 +147,29 @@ class PoseCapture:
         #     results.pose_world_landmarks, mp_pose.POSE_CONNECTIONS)
     self.cap.release()
 
+  def angle_from_image(self,path):
+        with mp_pose.Pose(
+        min_detection_confidence=0.5,
+        min_tracking_confidence=0.5,
+        model_complexity=2) as pose:
+            image = cv2.imread(path, cv2.IMREAD_COLOR)
+            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+            results = pose.process(image)
+            image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+            mp_drawing.draw_landmarks(
+              image,
+              results.pose_landmarks,
+              mp_pose.POSE_CONNECTIONS,
+              landmark_drawing_spec=mp_drawing_styles.get_default_pose_landmarks_style())
+            cv2.imwrite('annotated_image.png', image)
+            return [self.shoulder_rotation(results),abs(3.14 -self.shoulder_angle(results)),abs(3.14 - self.elbow_angle(results)),0,0,0]
+
 if __name__ == '__main__':
   thing = PoseCapture("example.mp4")
-  for angles in thing.angles():
-    print(angles)
+  #while True:
+  image_angles = thing.angle_from_image('/home/anthony/comp400/sim/kinova-arm/catkin_ws/src/base_controller/scripts/example3.jpg')
+  # for angles in thing.angles():
+  #   print(angles)
 
 
 '''
