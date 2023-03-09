@@ -74,6 +74,8 @@
 
     </group>
 
+
+    <node name="pose_estimation" pkg="base_controller" type="pose_estimation.py" respawn="true" output="screen"/>
     <node name="base_controller" pkg="base_controller" type="base_control_gen3lite.py" respawn="true" output="screen"/>
 
 </launch>

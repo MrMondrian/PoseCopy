@@ -47,7 +47,7 @@ catkin_package(
 ## catkin install commands ########
 ###################################
 
-catkin_install_python(PROGRAMS scripts/base_control_gen3lite.py
+catkin_install_python(PROGRAMS scripts/base_control_gen3lite.py scripts/pose_estimation.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 include_directories(

@@ -131,35 +131,14 @@ class PoseCapture:
                 if not success:
                     #print("Ignoring empty camera frame.")
                     # If loading a video, use 'break' instead of 'continue'.
-                    continue
+                    yield None
 
                 image.flags.writeable = False
                 image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
                 results = pose.process(image)
                 yield [self.shoulder_rotation(results),abs(3.14 -self.shoulder_angle(results)),abs(3.14 - self.elbow_angle(results)),0,0,0]
             self.cap.release()
-            #print(elbow_angle(results))
-            #print(shoulder_angle(results))
-            # if(results.pose_world_landmarks and results.pose_world_landmarks.landmark):
-            #   print("eblow: {}, shoulder: {}, roations: {} ".format(elbow_angle(results),shoulder_angle(results),shoulder_rotation(results)))
-            #elbow_angle(results)
-            #print(results.pose_landmarks)
-            # print(mp_pose.POSE_CONNECTIONS)
-            # Draw the pose annotation on the image.
-            # image.flags.writeable = True
-            #print(elbow_angle(results))
-            # image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-            # mp_drawing.draw_landmarks(
-            #     image,
-            #     results.pose_landmarks,
-            #     mp_pose.POSE_CONNECTIONS,
-            #     landmark_drawing_spec=mp_drawing_styles.get_default_pose_landmarks_style())
-            # #Flip the image horizontally for a selfie-view display.
-            # cv2.imshow('MediaPipe Pose', cv2.flip(image, 1))
-            # if cv2.waitKey(5) & 0xFF == 27:
-            #   break
-            # mp_drawing.plot_landmarks(
-            #     results.pose_world_landmarks, mp_pose.POSE_CONNECTIONS)
+
     def angle_from_image(self,path):
         with mp_pose.Pose(
         static_image_mode=True,
@@ -179,12 +158,14 @@ class PoseCapture:
 class BaseController:
     def __init__(self, activate: bool = False):
 
-        self.posecap = PoseCapture(video='/home/anthony/comp400/sim/kinova-arm/catkin_ws/src/base_controller/scripts/test.mp4')
-        self.grab = self.posecap.angles()
+        #self.posecap = PoseCapture(video='/home/anthony/comp400/sim/kinova-arm/catkin_ws/src/base_controller/scripts/test.mp4')
+        #self.grab = self.posecap.angles()
         #_ = next(self.grab)
-        self.image_angles = self.posecap.angle_from_image('/home/anthony/comp400/sim/kinova-arm/catkin_ws/src/base_controller/scripts/example.jpg')
-        self.video_angles = [1.5]*6
-        self.prev = self.video_angles
+        #self.image_angles = self.posecap.angle_from_image('/home/anthony/comp400/sim/kinova-arm/catkin_ws/src/base_controller/scripts/example.jpg')
+        #self.video_angles = [1.5]*6
+        #self.prev = self.video_angles
+        self.angles = [1.5]*6
+        self.sub = rospy.Subscriber("pose_estimate",Float64MultiArray,self.angles_callback)
         
         # read config files
         self.is_activated = activate
@@ -234,54 +215,67 @@ class BaseController:
             self.is_init_success = False
         else:
             self.is_init_success = True
-    def loop_video(self):
-        angles = next(self.grab,None)
-        # if angles == None:
-        #     self.activated = False
-        #     return
-        pub = [1.5]*6
-        if angles != None:
-            pub[2] = angles[2]
-        print("angles {}".format(angles))
-        #pub[2] = 0
-        # print(angles)
-        self.publish_joints(pub)
-
-    def loop_image(self):
-        pub = [0]*6
-        pub[0] = self.image_angles[0]
-        pub[1] = self.image_angles[1]
-        pub[2] = self.image_angles[2]
-
-        #print(pub)
-        
-        self.publish_joints(pub)
-
-    def loop(self):
-        pub = [0]*6
-        pub[0] = self.video_angles[0]
-        pub[1] = self.video_angles[1]
-        pub[2] = self.video_angles[2]
-
-        print(pub)
-        
-        self.publish_joints(pub)
     
-    def move_frame(self,num):
-        for i in range(num):
-            _ = self.posecap.move_frame(num)
-    def next_frame(self):
-        self.prev = self.video_angles
-        self.video_angles = next(self.grab,self.prev)
+    def angles_callback(self,data):
+        self.angles = data.data
+
+    # def loop_video(self):
+    #     angles = next(self.grab,None)
+    #     # if angles == None:
+    #     #     self.activated = False
+    #     #     return
+    #     pub = [1.5]*6
+    #     if angles != None:
+    #         pub[2] = angles[2]
+    #     print("angles {}".format(angles))
+    #     #pub[2] = 0
+    #     # print(angles)
+    #     self.publish_joints(pub)
+
+    # def loop_image(self):
+    #     pub = [0]*6
+    #     pub[0] = self.image_angles[0]
+    #     pub[1] = self.image_angles[1]
+    #     pub[2] = self.image_angles[2]
+
+    #     #print(pub)
+        
+    #     self.publish_joints(pub)
+
+    # def loop(self):
+    #     pub = [0]*6
+    #     pub[0] = self.video_angles[0]
+    #     pub[1] = self.video_angles[1]
+    #     pub[2] = self.video_angles[2]
+
+    #     print(pub)
+        
+    #     self.publish_joints(pub)
+    
+    # def move_frame(self,num):
+    #     for i in range(num):
+    #         _ = self.posecap.move_frame(num)
+    # def next_frame(self):
+    #     self.prev = self.video_angles
+    #     self.video_angles = next(self.grab,self.prev)
 
 
-    def publish_joints(self,angles):
+    # def publish_joints(self,angles):
+    #     dim = MultiArrayDimension()
+    #     dim.label = "angles"
+    #     dim.size = 6
+    #     dim.stride = 1
+    #     layout = MultiArrayLayout([dim],0)
+    #     self.__velocity_publisher.publish(Float64MultiArray(layout,angles))
+
+    def publish_joints(self):
         dim = MultiArrayDimension()
         dim.label = "angles"
         dim.size = 6
         dim.stride = 1
         layout = MultiArrayLayout([dim],0)
-        self.__velocity_publisher.publish(Float64MultiArray(layout,angles))
+        self.__velocity_publisher.publish(Float64MultiArray(layout,self.angles))
+
 #         self.last_action_notif_type = None
 
 #         req = ExecuteActionRequest()
@@ -351,22 +345,19 @@ def main():
     rate = rospy.Rate(200)
     
     # main control loop
-    i = 0
 
-    while i < 1000:
-        i+=1
-        bc_module.publish_joints([1.5]*6)
-        rate.sleep()
-    i = 0
+
     while not rospy.is_shutdown() and bc_module.is_activated:
-        i+=1
+        # i+=1
         # if(i% 1 == 0):
         #     bc_module.move_frame(4)
         #     bc_module.next_frame()
-        bc_module.move_frame(1)
-        bc_module.next_frame()
-        bc_module.loop()
+        # bc_module.move_frame(1)
+        # bc_module.next_frame()
+        # bc_module.loop()
         
+        bc_module.publish_joints()
+
         # if(i % 16 == 0):
         #     bc_module.next_frame()
         # if(i % 50 == 0):
