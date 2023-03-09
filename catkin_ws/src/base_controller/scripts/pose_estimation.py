@@ -96,6 +96,7 @@ class PoseCapture:
             while self.cap.isOpened():
                 #print("hi")
                 success, image = self.cap.read()
+                #success, image = self.cap.read()
                 #print(success)
                 if not success:
                     #print("Fail")
@@ -105,7 +106,10 @@ class PoseCapture:
                 image.flags.writeable = False
                 image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
                 results = pose.process(image)
-                yield [self.shoulder_rotation(results),abs(3.14 -self.shoulder_angle(results)),abs(3.14 - self.elbow_angle(results)),0,0,0]
+                if(results and results.pose_world_landmarks):
+                    yield [self.shoulder_rotation(results),abs(3.14 -self.shoulder_angle(results)),abs(3.14 - self.elbow_angle(results)),0,0,0]
+                else:
+                    yield [1.5]*6
             self.cap.release()
 
     def angle_from_image(self,path):
@@ -140,21 +144,22 @@ if __name__ == '__main__':
     
 
 
-    posecap = PoseCapture(video='/home/anthony/comp400/sim/kinova-arm/catkin_ws/src/base_controller/scripts/test.mp4')
+    #posecap = PoseCapture(video='/home/anthony/comp400/sim/kinova-arm/catkin_ws/src/base_controller/scripts/test.mp4')
+    posecap = PoseCapture()
     #fps = posecap.cap.get(cv2.CAP_PROP_FPS)
     #print("Frame rate: {}".format(fps))
     #rate = rospy.Rate(int(fps))
-    rate = rospy.Rate(24)
+    rate = rospy.Rate(60)
     
     angle_gen = posecap.angles()
 
     pub_angles([1.5]*6)
     rospy.sleep(5)
 
-    
-    for angles in angle_gen:
-        print(angles)
+    angles = next(angle_gen,None)
+    while not angles == None:
         pub_angles(angles)
         rate.sleep()
+        angles = next(angle_gen,None)
 
     rospy.spin()
