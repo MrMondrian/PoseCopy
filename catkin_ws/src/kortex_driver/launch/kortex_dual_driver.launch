@@ -97,7 +97,7 @@
 
     <!-- Start the right arm kortex_driver node -->
     <include file="$(find kortex_driver)/launch/kortex_arm_driver.launch">
-        <arg name="sim" value="false"/>
+        <arg name="sim" value="true"/>
         <arg name="ip_address" value="$(arg right_ip_address)"/>
         <arg name="username" value="$(arg right_username)"/>
         <arg name="password" value="$(arg right_password)"/>
