@@ -1,0 +1,6 @@
+<launch>
+    <include file="$(find kortex_gazebo)/launch/spawn_kortex_robot.launch"></include>
+    <node name="pose_estimation" pkg="base_controller" type="pose_estimation.py" respawn="true" output="screen"/>
+    <node name="controller" pkg="controls" type="controls.py" respawn="true" output="screen"/>
+
+</launch>

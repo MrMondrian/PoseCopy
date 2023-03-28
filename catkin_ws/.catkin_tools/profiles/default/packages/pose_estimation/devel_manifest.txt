@@ -1,5 +1,0 @@
-pose_estimation
-/home/anthony/comp400/sim/kinova-arm/catkin_ws/devel/.private/pose_estimation/cmake.lock /home/anthony/comp400/sim/kinova-arm/catkin_ws/devel/./cmake.lock
-/home/anthony/comp400/sim/kinova-arm/catkin_ws/devel/.private/pose_estimation/lib/pkgconfig/pose_estimation.pc /home/anthony/comp400/sim/kinova-arm/catkin_ws/devel/lib/pkgconfig/pose_estimation.pc
-/home/anthony/comp400/sim/kinova-arm/catkin_ws/devel/.private/pose_estimation/share/pose_estimation/cmake/pose_estimationConfig-version.cmake /home/anthony/comp400/sim/kinova-arm/catkin_ws/devel/share/pose_estimation/cmake/pose_estimationConfig-version.cmake
-/home/anthony/comp400/sim/kinova-arm/catkin_ws/devel/.private/pose_estimation/share/pose_estimation/cmake/pose_estimationConfig.cmake /home/anthony/comp400/sim/kinova-arm/catkin_ws/devel/share/pose_estimation/cmake/pose_estimationConfig.cmake

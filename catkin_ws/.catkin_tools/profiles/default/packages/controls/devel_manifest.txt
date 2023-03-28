@@ -1,0 +1,9 @@
+controls
+/home/anthony/comp400/sim/kinova-arm/catkin_ws/devel/.private/controls/cmake.lock /home/anthony/comp400/sim/kinova-arm/catkin_ws/devel/./cmake.lock
+/home/anthony/comp400/sim/kinova-arm/catkin_ws/devel/.private/controls/lib/controls/controls.py /home/anthony/comp400/sim/kinova-arm/catkin_ws/devel/lib/controls/controls.py
+/home/anthony/comp400/sim/kinova-arm/catkin_ws/devel/.private/controls/lib/controls/base_control_gen3lite.py /home/anthony/comp400/sim/kinova-arm/catkin_ws/devel/lib/controls/base_control_gen3lite.py
+/home/anthony/comp400/sim/kinova-arm/catkin_ws/devel/.private/controls/lib/controls/pose_estimation.py /home/anthony/comp400/sim/kinova-arm/catkin_ws/devel/lib/controls/pose_estimation.py
+/home/anthony/comp400/sim/kinova-arm/catkin_ws/devel/.private/controls/lib/controls/cmake.lock /home/anthony/comp400/sim/kinova-arm/catkin_ws/devel/lib/controls/cmake.lock
+/home/anthony/comp400/sim/kinova-arm/catkin_ws/devel/.private/controls/lib/pkgconfig/controls.pc /home/anthony/comp400/sim/kinova-arm/catkin_ws/devel/lib/pkgconfig/controls.pc
+/home/anthony/comp400/sim/kinova-arm/catkin_ws/devel/.private/controls/share/controls/cmake/controlsConfig.cmake /home/anthony/comp400/sim/kinova-arm/catkin_ws/devel/share/controls/cmake/controlsConfig.cmake
+/home/anthony/comp400/sim/kinova-arm/catkin_ws/devel/.private/controls/share/controls/cmake/controlsConfig-version.cmake /home/anthony/comp400/sim/kinova-arm/catkin_ws/devel/share/controls/cmake/controlsConfig-version.cmake
