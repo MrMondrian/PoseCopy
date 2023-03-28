@@ -1,3 +1,3 @@
-# Startup Code for Kinova Gen3Lite
+# A vision based control interface for a Kinova ARm
 
 
